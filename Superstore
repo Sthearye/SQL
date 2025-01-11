@@ -36,17 +36,17 @@ ORDER BY price;
 
 -- Shows a statistic about the item price
 SELECT  SUM(price), 
-		MAX(price), 
-		MIN(price), 
-		AVG(price),
+	MAX(price), 
+	MIN(price), 
+	AVG(price),
         COUNT(price)
 FROM superstore;
 
 -- Show statistic about the item price in the categorical of "Kitchen Supplies"
-SELECT SUM(price), 
-		MAX(price), 
-		MIN(price), 
-		AVG(price), 
+SELECT 	SUM(price), 
+       	MAX(price), 
+	MIN(price), 
+	AVG(price), 
         COUNT(price)
 FROM superstore 
 WHERE category = 'Kitchen Supplies';
