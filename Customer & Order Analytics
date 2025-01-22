@@ -39,3 +39,9 @@ SELECT COUNT(DISTINCT c.acctnum), AVG(fs.Quantity * fs.price)
 FROM BIGT_DB.FebSales fs LEFT JOIN BIGT_DB.customers c
 ON fs.orderID = c.order_id
 WHERE fs.Quantity > 2 AND fs.orderID <> 'Order ID' AND LENGTH(orderID) = 6;
+
+--List all the product sold in Los Angeles in February, and include how many of each were sold
+SELECT  Prouct, SUM(Quantity)
+FROM BIGT_DB.FebSales
+WHERE location LIKE '%Los Angeles%'
+GROUP BY Product;
