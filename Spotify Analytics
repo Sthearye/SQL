@@ -24,6 +24,9 @@ duration_ms integer NOT NULL,
 time_signature integer NOT NULL 
 )
 
+# Then I inserted the Spotify Data .csv into the table 
+# Next, I explored the data using the following SQL.
+
 --Number of Artits
 SELECT COUNT(DISTINCT artist_name)
 FROM BIGT_DB.Spotifydata;
