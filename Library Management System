@@ -1,0 +1,150 @@
+# This porject is a Library Management System implemeneted in SQL, featuring a relational database with tables for books, borrowers, and loans, along with a collection of queries to 
+# demonstrate data retrieval, filter, and analysis for various library operations.
+
+-- Create the Books table
+CREATE TABLE Books (
+    BookID INT PRIMARY KEY,
+    Title VARCHAR(100) NOT NULL,
+    Author VARCHAR(100) NOT NULL,
+    Genre VARCHAR(50),
+    PublishedYear INT
+);
+
+-- Insert data into the Books table
+INSERT INTO Books (BookID, Title, Author, Genre, PublishedYear)
+VALUES
+(1, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 1925),
+(2, 'To Kill a Mockingbird', 'Harper Lee', 'Fiction', 1960),
+(3, '1984', 'George Orwell', 'Dystopian', 1949),
+(4, 'Pride and Prejudice', 'Jane Austen', 'Romance', 1813),
+(5, 'The Catcher in the Rye', 'J.D. Salinger', 'Fiction', 1951),
+(6, 'Moby Dick', 'Herman Melville', 'Adventure', 1851);
+
+-- Create the Borrowers table
+CREATE TABLE Borrowers (
+    BorrowerID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100),
+    JoinDate DATE
+);
+
+-- Insert data into the Borrowers table
+INSERT INTO Borrowers (BorrowerID, Name, Email, JoinDate)
+VALUES
+(1, 'John Doe', 'johndoe@example.com', '2022-01-15'),
+(2, 'Jane Smith', 'janesmith@example.com', '2022-03-10'),
+(3, 'Alice Johnson', 'alicej@example.com', '2021-11-05'),
+(4, 'Bob Brown', 'bobbrown@example.com', '2023-02-20');
+
+-- Create the Loans table
+CREATE TABLE Loans (
+    LoanID INT PRIMARY KEY,
+    BookID INT,
+    BorrowerID INT,
+    LoanDate DATE,
+    ReturnDate DATE,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID),
+    FOREIGN KEY (BorrowerID) REFERENCES Borrowers(BorrowerID)
+);
+
+-- Insert data into the Loans table
+INSERT INTO Loans (LoanID, BookID, BorrowerID, LoanDate, ReturnDate)
+VALUES
+(1, 1, 1, '2023-01-10', '2023-01-25'),
+(2, 2, 2, '2023-02-15', NULL),
+(3, 3, 3, '2023-03-01', '2023-03-15'),
+(4, 4, 1, '2023-03-05', NULL),
+(5, 5, 4, '2023-03-10', NULL);
+
+-- Retrieve all books published before the year 1900
+SELECT *
+FROM Books
+WHERE PublishedYear < 1900;
+
+-- Find the names and emails of all borrowers who joined in 2022
+SELECT Name, Email
+FROM Borrowers
+WHERE YEAR(JoinDate) = 2022;
+
+-- List all books in the 'Fiction' genre
+SELECT *
+FROM Books 
+WHERE Genre = 'Fiction';
+
+-- Count the total number of books in the library
+SELECT COUNT(*) AS TotalBooks
+FROM Books;
+
+-- Find all books borrowed by 'John Doe'
+SELECT b.Title, b.Author 
+FROM Books b LEFT JOIN  Loans l
+ON b.BookID = l.BookID
+LEFT JOIN Borrowers br
+ON l.BorrowerID = br.BorrowerID
+WHERE br.Name = 'John Doe';
+
+-- Retrieve all books that are currently on loan (i.e., ReturnDate is NULL)
+SELECT b.Title, b.Author
+FROM Books b LEFT JOIN Loans l
+ON b.BookID = l.BookID
+WHERE l.ReturnDate IS NULL;
+
+-- Find the title and author of the book with the most recent publication year
+SELECT Title, Author 
+FROM Books 
+ORDER BY PublishedYear DESC
+LIMIT 1;
+
+-- List all borrowers who have borrowed more than one book.
+SELECT br.Name, COUNT(l.LoanID) AS TotalLoan
+FROM Borrowers br LEFT JOIN Loans l 
+ON br.BorrowerID = l.BorrowerID
+GROUP BY br.borrowerID 
+HAVING COUNT(br.borrowerID) > 1;
+
+-- Find the total number of loans for each borrower (include borrowers with 0 loans)
+SELECT br.Name, COUNT(LoanID) as total_loan
+FROM Borrowers br LEFT JOIN Loans l
+ON br.BorrowerID = l.BorrowerID
+GROUP BY br.BorrowerID;
+
+-- Retrieve the title of books that have never been borrowed.
+SELECT b.Title
+FROM Books b LEFT JOIN Loans l 
+ON b.BookID = l.BookID
+WHERE l.BookID IS NULL;
+
+-- Find the borrower who has borrowed the most books 
+SELECT Name
+FROM Borrowers 
+WHERE BorrowerID IN (SELECT MAX(BorrowerID) FROM Loans GROUP BY BorrowerID ORDER BY MAX(BorrowerID) DESC) 
+LIMIT 1;
+
+-- List all books alog with the name of the borrower (if any) who currently has them on loan 
+SELECT b.Title, b.Author, br.Name
+FROM Books b LEFT JOIN Loans l 
+ON b.BookID = l.BookID
+LEFT JOIN Borrowers br 
+ON l.BorrowerID = br.BorrowerID
+WHERE l.ReturnDate IS NULL;
+
+-- Calculate the average number of days a books is on loan (ignore books that are still on loan)
+SELECT AVG(DATEDIFF(ReturnDate, LoanDate)) AS avg_num_days 
+FROM Loans
+WHERE ReturnDate IS NOT NULL;
+
+-- Find the most popular genre based on the number of loans
+SELECT b.Genre, COUNT(l.LoanID) AS TotalLoans 
+FROM Books b JOIN Loans l
+ON b.BookID = l.BookID
+GROUP BY b.Genre
+ORDER BY TotalLoans DESC
+LIMIT 1;
+
+-- Retrieve the names of borrowers who have borrowed books published before 1950.
+SELECT br.Name 
+FROM Books b INNER JOIN Loans l 
+ON b.BookID = l.BookID 
+INNER JOIN Borrowers br 
+ON l.BorrowerID = br.BorrowerID
+WHERE b.PublishedYear > 1950;
