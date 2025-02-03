@@ -1,0 +1,166 @@
+# This Airline Rating dataset include Passenger reviews of airlines, Airline Passenger Satisfaction, and etc.
+# In dataset, I worked on some questions to discovered how various factors can affect customer's satisfaction
+
+-- How many customers are in the dataset?
+SELECT COUNT(*) AS Total_Customers
+FROM Airline_Rating;
+
+-- What is the gender distribution of the customers
+SELECT Gender, COUNT(*) AS Gender_Distribution
+FROM Airline_Rating
+GROUP BY Gender;
+
+-- Satisfaction distribution by customer type 
+SELECT Customer_Type, Satisfaction, COUNT(*) AS Total
+FROM Airline_Rating
+GROUP BY Customer_Type, Satisfaction;
+
+-- What is the gender distribution of dissatisfied customers?
+SELECT Gender, 
+       COUNT(*) AS Dissatisfied_Total
+FROM Airline_Rating 
+WHERE Satisfaction <> 'Satisfied'
+GROUP BY Gender;
+
+-- Which gender has the highest percentge of dissatisfied customers?
+SELECT Gender, 
+COUNT(*) * 100 / (SELECT COUNT(*) FROM Airline_Rating) AS Percentage
+FROM Airline_Rating
+WHERE Satisfaction LIKE '%Dissatisfied%'
+GROUP BY Gender
+ORDER BY Percentage DESC;
+
+-- Which class has the highest proportion of satisfied customers?
+SELECT Class, COUNT(*) AS Satisfied_Customers
+FROM Airline_Rating
+GROUP BY Class
+ORDER BY Satisfied_Customers DESC;
+
+-- What is the average flight distance for satisfied vs. dissatisfied customers
+SELECT Satisfaction, 
+       AVG(Flight_Distance)
+FROM Airline_Rating
+GROUP BY Satisfaction;
+
+-- What is the distribution of customer types?
+SELECT Customer_Type, 
+       COUNT(*)
+FROM Airline_Rating
+GROUP BY Customer_Type;
+
+-- What is the satisfaction level distribution for each type of travel (Business vs. Personal)
+SELECT Satisfaction, 
+       Type_of_Travel, 
+       COUNT(*)
+FROM Airline_Rating
+GROUP BY Satisfaction, Type_of_Travel;
+
+-- Is there a difference in satisfaction ratings between genders?
+SELECT Gender, 
+       AVG(Satisfaction) AS AVG_Satisfaction
+FROM Airline_Rating
+GROUP BY Gender, Satisfaction;
+
+-- What is the average rating for each service category (e.g., Check-In Service, Online Boarding, Seat Comfort)?
+SELECT ROUND(AVG(Checkin_Service), 2) AS avg_checkin_service, 
+       ROUND(AVG(Online_Boarding), 2) AS avg_online_board,
+       ROUND(AVG(Seat_Comfort), 2) AS avg_seat_comfort, 
+       ROUND(AVG(Leg_Room_Service), 2) AS avg_leg_room,
+       ROUND(AVG(Cleanliness), 2) AS avg_cleanliness,
+       ROUND(AVG(Food_and_Drink), 2) AS avg_food_and_drink,
+       ROUND(AVG(Inflight_Service), 2) AS avg_inflight_service,
+       ROUND(AVG(Inflight_Wifi_Service), 2) AS avg_inflight_wifi,
+       ROUND(AVG(Inflight_Entertainment), 2) AS avg_inflight_entertainment,
+       ROUND(AVG(Baggage_Handling), 2) AS avg_baggage_handle
+FROM Airline_Rating;
+
+-- What is the average age of customers?
+SELECT ROUND(AVG(Age)) AS Avg_Age
+FROM Airline_Rating;
+
+-- What is the average departure and arrival delay across all flights?
+SELECT  ROUND(AVG(Departure_Delay), 2) AS Avg_Departure, 
+        ROUND(AVG(Arrival_Delay), 2) AS Avg_Arrival
+FROM Airline_Rating;
+
+-- What is the average flight distance based on the type of travel (e.g., Business vs. Personal)?
+SELECT Type_of_Travel, 
+       ROUND(AVG(Flight_Distance), 2) AS Avg_Distance
+FROM Airline_Rating 
+GROUP BY Type_of_Travel;
+
+-- What is the average cleanliness score for each class?
+SELECT Class, 
+       AVG(Cleanliness)
+FROM Airline_Rating
+GROUP BY Class;
+
+-- What is the average departure delay for each class?
+SELECT Class, 
+       AVG(Departure_Delay)
+FROM Airline_Rating
+GROUP BY Class;
+
+-- Which class (Economy, Business, etc.) has the longest average flight distance?
+SELECT Class, ROUND(AVG(Flight_Distance), 2) AS Avg_Distance
+FROM Airline_Rating 
+GROUP BY class
+ORDER BY AVG(Flight_Distance) DESC 
+LIMIT 1;
+
+-- What is the average cleaniness score for each customer type?
+SELECT Customer_Type, 
+       AVG(Cleanliness)
+FROM Airline_Rating
+GROUP BY Customer_Type;
+
+-- Which services has the lowest average rating?
+SELECT 'Check-in Service', AVG(Checkin_Service) AS avg_rating FROM Airline_Rating
+UNION ALL
+SELECT 'Online Boarding', AVG(Online_Boarding) FROM Airline_Rating
+UNION ALL
+SELECT 'Seat Comfort', AVG(Seat_Comfort) FROM Airline_Rating
+UNION ALL
+SELECT 'Leg Room Service', AVG(Leg_Room_Service) FROM Airline_Rating
+UNION ALL
+SELECT 'Cleanliness', AVG(Cleanliness) FROM Airline_Rating
+UNION ALL
+SELECT 'Food and Drink', AVG(Food_and_Drink) FROM Airline_Rating
+UNION ALL
+SELECT 'In-flight Service', AVG(Inflight_Service) FROM Airline_Rating
+ORDER BY avg_rating ASC 
+LIMIT 1;
+
+-- What is the proportion of each satisfction category?
+SELECT Satisfaction, ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM Airline_Rating), 2) AS Percentage
+FROM Airline_Rating 
+GROUP BY Satisfaction;
+
+-- How does satisfaction vary by type of travel?
+SELECT Type_of_Travel, Satisfaction, COUNT(*) AS Total 
+FROM Airline_Rating 
+GROUP BY Type_of_Travel, Satisfaction
+ORDER BY Total DESC;
+
+-- What is the most common travel type?
+SELECT Type_of_Travel, COUNT(*) AS Total
+FROM Airline_Rating
+GROUP BY Type_of_Travel
+ORDER BY Total DESC
+LIMIT 1;
+
+-- How many flights experienced delays of more than 30 minutes at department or arrival?
+SELECT COUNT(*) as Total_Flights
+FROM Airline_Rating 
+WHERE Departure_Delay > 30 OR Arrival_Delay > 30;
+
+-- What is the relationship between ease of online booking and customer satisfaction
+SELECT Ease_of_Online_Booking, Satisfaction, COUNT(*)
+FROM Airline_Rating
+GROUP BY Ease_of_Online_Booking, Satisfaction;
+
+-- Which flight class has the most customers who rate in-flight WiFi highly?
+SELECT Class, AVG(Inflight_Wifi_Service) AS Avg_WiFi
+FROM Airline_Rating
+GROUP BY Class
+ORDER BY Avg_WiFi DESC;
