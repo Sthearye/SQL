@@ -1,0 +1,100 @@
+# This dataset is from the Social Media Sentimental Analysis from Kaggle.
+# Below is some questions I worked utlizing SQL. 
+
+-- What is the total number of posts in the dataset?
+SELECT COUNT(*) as Total_Posts
+FROM Social_Media.mytable;
+
+-- What is the distribution of sentiment labels (positive, negative, neutral)?
+SELECT sentiment_label, COUNT(*) AS Total_Posts
+FROM Social_Media.mytable 
+GROUP BY sentiment_label;
+
+-- Which post has the highest number of likes?
+SELECT post_ID, post_content, likes, shares, post_datetime, post_type, sentiment_label
+FROM Social_Media.mytable
+WHERE likes IN (SELECT MAX(likes) FROM mytable);
+
+-- What is the average number of likes, shares, and comments for all posts?
+
+SELECT  AVG(likes) AS avg_like,
+        AVG(shares) AS avg_share,
+        AVG(comments) AS avg_comment
+FROM Social_Media.mytable;
+
+-- Which post type receives the most engagment (likes + shares + comments)?
+SELECT post_type,
+        SUM(likes + shares + comments) as Total_engagement
+FROM Social_Media.mytable 
+GROUP BY post_type
+ORDER BY Total_engagement DESC
+LIMIT 1;
+
+--Which language has the most posts?
+SELECT Language, COUNT(*) AS Total
+FROM Social_Media.mytable 
+GROUP BY Language
+ORDER BY Total DESC 
+LIMIT 1;
+
+--Which user (based on follower_count) has the highest average engagement per post?
+SELECT follower_count, 
+AVG(likes+shares+comments) AS avg_engagement
+FROM Social_Media.mytable
+GROUP BY follower_count
+ORDER BY avg_engagement DESC 
+LIMIT 1;
+
+-- What is the most common post type 
+SELECT MAX(post_type)
+FROM Social_Media.mytable 
+GROUP BY post_type
+ORDER BY MAX(post_type) DESC
+LIMIT 1;
+
+-- What is the total engagement (likes + shares + comments) for each sentiment labels?
+SELECT sentiment_label, 
+SUM(likes + shares + comments) AS Total_engagment 
+FROM Social_Media.mytable 
+GROUP BY sentiment_label;
+
+-- Which day of the week has the highest number of posts?
+SELECT strftime('%d', post_datetime) AS Days,
+COUNT(*) AS post_count
+FROM Social_Media.mytable 
+GROUP BY Days 
+ORDER BY post_count DESC 
+LIMIT 1;
+
+-- What is the average number of followers for users who post in each language?
+SELECT  Language, 
+        ROUND(AVG(follower_count), 2) AS avg_follower
+FROM Social_Media.mytable 
+GROUP BY Language;
+
+-- Which post has the highest number of comments?
+SELECT post_id, 
+        post_content, 
+        MAX(comments), 
+        post_type
+FROM Social_Media.mytable;
+
+-- Which user (based on follower count) has the highest number of posts?
+SELECT follower_count
+FROM Social_Media.mytable 
+GROUP BY post_id
+ORDER BY post_id DESC
+LIMIT 1;
+
+-- What is the average number of shares of posts with positive sentiment?
+SELECT ROUND(AVG(shares), 2) AS avg_positive_shares
+FROM Social_Media.mytable 
+WHERE sentiment_label = 'Positive';
+
+-- Which language has the highest average engagement?
+SELECT  Language, 
+        ROUND(AVG(likes + shares + comments), 2) AS highest_avg_engagement 
+FROM Social_Media.mytable 
+GROUP BY Language 
+ORDER BY highest_avg_engagement DESC
+LIMIT 1;
